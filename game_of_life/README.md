@@ -39,16 +39,14 @@ Cell `E` has 2 live neighbors (`D` and `F`), so according to Rule 3, it remains 
 
 This causes the next "generation" to be composed of `BEH`, which is similar to `DEF`, but vertical. You can then apply the rules again and see that the next generation it then becomes `DEF`, and it creates a repeating cycle.
 
-For testing purposes, feel free to randomly 
-
 Extra Credit ideas:
 * Add interactivity- allow a user to select live/dead cells (either before or during the game)
 * Detect stabilization- This has several levels of complexity:
 
   a) "still life" - there is no more motion
-  
+
   b) Repeating - Like the blinker above, it's not still, but it repeats over 2 generations
-  
+
   c) Long cycle - might repeat over 20+ generations
-  
+
   d) Given an infinite grid, detecting "gliders" as part of a repeating cycle since they'll never change the state (This is very difficult)

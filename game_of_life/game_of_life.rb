@@ -1,29 +1,24 @@
 # frozen_string_literal: true
 
-class GameOfLife
-  attr_accessor :size, :initial_state, :generations
+require_relative "board"
+require_relative "cell"
 
-  def initialize(size: 3, initial_state: [[0,0,0],[1,1,1],[0,0,0]], generations: 10)
+class GameOfLife
+  attr_accessor :size, :initial_board_state, :generations, :board
+
+  def initialize(size: 3, initial_board_state: [[0,0,0],[1,1,1],[0,0,0]], generations: 10)
     self.size = size
-    self.initial_state = initial_state
+    self.initial_board_state = initial_board_state
     self.generations = generations
 
-    # maybe put a board class here? And pass in initial state to that class
-    # board class would be comprised of cell classes. And would define the methods
-    # in play (calculate, advance, and output)
-    # board class might have a method that does those three together?
+    self.board = ::Board.new(cells: generate_cells)
 
-    # cell has alive/dead attribute, and a count of its neighbors attribute
-
-    # - go through each cell, count it's neighbors. update the count.
-    # - go through again, this time updating alive/dead and ressetting neighbor count
-    # - repeat
+    # board class would be comprised of cell classes, and would define the methods
+    # in play (calculate, advance, and output) - maybe does all three together?
   end
 
   def play
-    return display_error if invalid_initial_state?
-
-    generate_cells
+    return display_error if invalid_initial_board_state?
 
     generations.times do |_i|
       calculate_next_generation
@@ -34,8 +29,8 @@ class GameOfLife
 
   private
 
-  def invalid_initial_state?
-    initial_state.length != size || initial_state.any? { |row| row.length != size }
+  def invalid_initial_board_state?
+    initial_board_state.length != size || initial_board_state.any? { |row| row.length != size }
   end
 
   def display_error
@@ -44,9 +39,14 @@ class GameOfLife
   end
 
   def generate_cells
-
+    initial_board_state.map do |row|
+      row.map do |cell_state|
+        ::Cell.new(life_state: ::Cell::VALID_LIFE_STATES[cell_state])
+      end
+    end
   end
 
+  # move these to board class
   def calculate_next_generation
 
   end

@@ -1,28 +1,36 @@
 # frozen_string_literal: true
 
 class Cell
-  attr_accessor :current_state, :future_state
+  attr_accessor :life_state, :neighbors
 
   VALID_LIFE_STATES = ["alive", "dead"]
 
-  def initialize(current_state: "dead")
-    self.current_state = current_state
+  def initialize(life_state: "dead", neighbors: 0)
+    self.life_state = life_state
+    self.neighbors = neighbors
 
-    # better way to handle this?
-    output_error unless VALID_LIFE_STATES.include?(current_state)
+    display_warning unless VALID_LIFE_STATES.include?(life_state)
   end
 
-  def output_error
-    puts "ERROR --- ERROR"
-    puts "#{current_state} is not a valid life state"
+  def display_warning
+    puts "WARNING:"
+    puts "#{life_state} is not a valid life state"
     puts "valid life states are '#{VALID_LIFE_STATES.join("/")}'"
   end
 
+  def advance_generation
+    self.life_state = meets_conditions_for_life? ? "alive" : "dead"
+  end
+
+  def meets_conditions_for_life?
+    (neighbors == 3) || (alive? && neighbors == 2)
+  end
+
   def alive?
-    current_state == "alive"
+    life_state == "alive"
   end
 
   def dead?
-    current_state == "dead"
+    life_state == "dead"
   end
 end

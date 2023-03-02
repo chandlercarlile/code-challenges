@@ -3,7 +3,7 @@
 class Cell
   attr_accessor :life_state, :neighbors
 
-  VALID_LIFE_STATES = ["alive", "dead"]
+  VALID_LIFE_STATES = ["dead", "alive"]
 
   def initialize(life_state: "dead", neighbors: 0)
     self.life_state = life_state

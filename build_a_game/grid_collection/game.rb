@@ -2,7 +2,11 @@ class Game
   CELL = "."
   PC = "@"
 
-  attr_accessor :board
+  VALID_COMMANDS = [
+    "w", "a", "s", "d",
+  ].freeze
+
+  attr_accessor :print_board, :process_input
 
   def initialize(width:, height:, start_x:, start_y:)
     @width = width.to_i
@@ -12,6 +16,36 @@ class Game
 
     @board = ::Array.new(@height){::Array.new(@width, CELL)}
   end
+
+  def play
+    playing = true
+
+    while playing
+      print_board
+      puts "-----------------------------"
+      puts "commands"
+      puts "exit: quit the game"
+      puts "w: move pc up"
+      puts "a: move pc left"
+      puts "s: move pc down"
+      puts "d: move pc right"
+      puts "press enter to input command"
+
+      input = STDIN.gets.chomp
+      system("clear")
+
+      if input == "exit"
+        playing = false
+      elsif VALID_COMMANDS.include?(input)
+        puts "valid input"
+        process_input(input)
+      else
+        puts "not a valid input"
+      end
+    end
+  end
+
+  private
 
   def print_board
     @board.each_with_index do |row, index_y|
@@ -29,9 +63,6 @@ class Game
   end
 
   def process_input(input)
-    puts "processing input"
-
-    # move the PC
     case input
     when "w"
       @pc_location_y -= 1
@@ -45,41 +76,17 @@ class Game
 
     @pc_location_x %= @width
     @pc_location_y %= @height
-
-    print_board
   end
 end
 
-# Start Script
+# using ruby in cli
+# ruby game.rb 10 10 5 5
+# uncomment the below lines
+# system("clear")
+# game = ::Game.new(width: ARGV[0], height: ARGV[1], start_x: ARGV[2], start_y: ARGV[3]).play
 
-game = ::Game.new(width: ARGV[0], height: ARGV[1], start_x: ARGV[2], start_y: ARGV[3])
-game.print_board
-puts "-----------------------------"
-puts "commands"
-puts "exit: quit the game"
-puts "w: move pc up"
-puts "a: move pc left"
-puts "s: move pc down"
-puts "d: move pc right"
-puts "press enter to input command"
-puts "The world is flat (currently) so don't fall off the edge!"
+#####################################
 
-VALID_COMMANDS = [
-  "w", "a", "s", "d",
-].freeze
-
-playing = true
-
-while playing
-  input = STDIN.gets.chomp
-  system("clear")
-
-  if input == "exit"
-    playing = false
-  elsif VALID_COMMANDS.include?(input)
-    puts "valid input"
-    game.process_input(input)
-  else
-    puts "not a valid input"
-  end
-end
+# using IRB
+# irb -r ./game.rb
+# ::Game.new(width: 10, height: 10, start_x: 5, start_y: 5).play

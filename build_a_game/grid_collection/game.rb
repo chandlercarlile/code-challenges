@@ -1,27 +1,19 @@
-class Game
-  CELL = "."
-  PC = "@"
+require "./board.rb"
 
+class Game
   VALID_COMMANDS = [
     "w", "a", "s", "d",
   ].freeze
 
-  attr_accessor :print_board, :process_input
-
-  def initialize(width:, height:, start_x:, start_y:)
-    @width = width.to_i
-    @height = height.to_i
-    @pc_location_x = start_x.to_i
-    @pc_location_y = start_y.to_i
-
-    @board = ::Array.new(@height){::Array.new(@width, CELL)}
+  def initialize(height:, width:, start_x:, start_y:)
+    @board = ::Board.new(height: height, width: width, start_x: start_x, start_y: start_y)
   end
 
   def play
     playing = true
 
-    while playing
-      print_board
+    loop do
+      @board.print_board
       puts "-----------------------------"
       puts "commands"
       puts "exit: quit the game"
@@ -37,45 +29,29 @@ class Game
       if input == "exit"
         playing = false
       elsif VALID_COMMANDS.include?(input)
-        puts "valid input"
         process_input(input)
-      else
-        puts "not a valid input"
       end
+
+      break if !playing
     end
   end
 
   private
 
-  def print_board
-    @board.each_with_index do |row, index_y|
-      row.each_with_index do |column, index_x|
-        if @pc_location_x == index_x && @pc_location_y == index_y
-          print PC
-        else
-          print CELL
-        end
-        print " "
-      end
-
-      puts
-    end
-  end
-
   def process_input(input)
     case input
     when "w"
-      @pc_location_y -= 1
+      @board.pc_location_y -= 1
     when "a"
-      @pc_location_x -= 1
+      @board.pc_location_x -= 1
     when "s"
-      @pc_location_y += 1
+      @board.pc_location_y += 1
     when "d"
-      @pc_location_x += 1
+      @board.pc_location_x += 1
     end
 
-    @pc_location_x %= @width
-    @pc_location_y %= @height
+    @board.pc_location_x %= @board.width
+    @board.pc_location_y %= @board.height
   end
 end
 

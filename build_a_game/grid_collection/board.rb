@@ -5,13 +5,13 @@ class Board
 
   attr_accessor :grid, :height, :width
 
-  def initialize(height:, width:)
+  def initialize(height:, width:, pc_start_x:, pc_start_y:)
     @width = width.to_i
     @height = height.to_i
 
-    @pc = nil
-
     @grid = ::Array.new(@height){::Array.new(@width) {[]}}
+
+    spawn(type: "PlayerCharacter", location_x: pc_start_x, location_y: pc_start_y)
   end
 
   def print_board

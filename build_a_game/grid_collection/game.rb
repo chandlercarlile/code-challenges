@@ -6,10 +6,7 @@ class Game
   ].freeze
 
   def initialize(height:, width:, start_x:, start_y:)
-    @board = ::Board.new(height: height, width: width)
-
-    # not sure if this should be here, or on the board. Board will always have 1 pc...
-    @board.spawn(type: "PlayerCharacter", location_x: start_x, location_y: start_y)
+    @board = ::Board.new(height: height, width: width, pc_start_x: start_x, pc_start_y: start_y)
   end
 
   def play

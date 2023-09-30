@@ -1,4 +1,5 @@
 require "./player_character"
+require "./coin"
 
 class Board
   CELL = "."
@@ -12,6 +13,9 @@ class Board
     @grid = ::Array.new(@height){::Array.new(@width) {[]}}
 
     spawn(type: "PlayerCharacter", location_x: pc_start_x, location_y: pc_start_y)
+    # TODO:
+    # - more than one coin can spawn?
+    spawn(type: "Coin")
   end
 
   def print_board
@@ -33,14 +37,22 @@ class Board
 
   def spawn(type:, location_x: nil, location_y: nil)
     # TODO:
-    # - add random if the location is not provided
-    # - check if spawn is valid,
-    # -- if invalid, output if provided, or re-pick if random
+    # - keep track of if the location was provided or random (need to error if provided and invalid)
+    location_x = location_x.nil? ? rand(width) : location_x
+    location_y = location_y.nil? ? rand(height) : location_y
 
     case type
     when "PlayerCharacter"
+      # if player character is ever not the first to spawn, will need to validate the location
       @pc = ::PlayerCharacter.new(location_x: location_x, location_y: location_y)
       @grid[location_y.to_i][location_x.to_i] << @pc
+    when "Coin"
+      if @grid[location_y.to_i][location_x.to_i].empty?
+        @coin = ::Coin.new(location_x: location_x, location_y: location_y)
+        @grid[location_y.to_i][location_x.to_i] << @coin
+      else
+        spawn("Coin")
+      end
     end
   end
 
@@ -55,6 +67,7 @@ class Board
 
     # check if the player can perform that move on the board
     # - nothing to do here yet, player can move unrestricted
+    # - easy way to do this, check everything else on that tile for "movable" or "collectible"
 
     # if yes, move the character
     @grid[@pc.location_y][@pc.location_x] -= [@pc]

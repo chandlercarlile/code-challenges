@@ -3,7 +3,7 @@ require "./player_character"
 class Board
   CELL = "."
 
-  attr_accessor :grid, :height, :width, :pc
+  attr_accessor :grid, :height, :width
 
   def initialize(height:, width:)
     @width = width.to_i

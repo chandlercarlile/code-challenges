@@ -4,11 +4,13 @@ require "./coin"
 class Board
   CELL = "."
 
-  attr_accessor :grid, :height, :width
+  attr_accessor :grid, :height, :width, :score
 
   def initialize(height:, width:, pc_start_x:, pc_start_y:)
     @width = width.to_i
     @height = height.to_i
+    # should the board keep track of the score?
+    @score = 0
 
     @grid = ::Array.new(@height){::Array.new(@width) {[]}}
 
@@ -51,7 +53,7 @@ class Board
         @coin = ::Coin.new(location_x: location_x, location_y: location_y)
         @grid[location_y.to_i][location_x.to_i] << @coin
       else
-        spawn("Coin")
+        spawn(type: "Coin")
       end
     end
   end
@@ -76,5 +78,21 @@ class Board
     @pc.location_y = new_location_y
 
     @grid[new_location_y][new_location_x] << @pc
+
+    # collect anything that is "collectible"
+    items = @grid[new_location_y][new_location_x]
+    items.each do |item|
+      next if item == @pc
+
+      if item == @coin
+        @score += 1
+        @grid[new_location_y][new_location_x] -= [@coin]
+        spawn(type: "Coin")
+      end
+    end
+
+    # move anything that is "movable"
+    # - this may be easier if we have the direction the player was moving (as an argument)
+    # - otherwise we will need to calculate it
   end
 end

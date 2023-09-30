@@ -13,6 +13,7 @@ class Game
     playing = true
 
     loop do
+      puts "Score: #{@board.score}"
       @board.print_board
       puts "-----------------------------"
       puts "commands"

@@ -6,7 +6,10 @@ class Game
   ].freeze
 
   def initialize(height:, width:, start_x:, start_y:)
-    @board = ::Board.new(height: height, width: width, start_x: start_x, start_y: start_y)
+    @board = ::Board.new(height: height, width: width)
+
+    # not sure if this should be here, or on the board. Board will always have 1 pc...
+    @board.spawn(type: "PlayerCharacter", location_x: start_x, location_y: start_y)
   end
 
   def play
@@ -41,27 +44,31 @@ class Game
   def process_input(input)
     case input
     when "w"
-      @board.pc_location_y -= 1
+      @board.move_player_character(distance_x: 0, distance_y: -1)
     when "a"
-      @board.pc_location_x -= 1
+      @board.move_player_character(distance_x: -1, distance_y: 0)
     when "s"
-      @board.pc_location_y += 1
+      @board.move_player_character(distance_x: 0, distance_y: 1)
     when "d"
-      @board.pc_location_x += 1
+      @board.move_player_character(distance_x: 1, distance_y: 0)
     end
-
-    @board.pc_location_x %= @board.width
-    @board.pc_location_y %= @board.height
   end
 end
 
+# TODO:
+# - add script to ask user for heigh, width, start_x, start_y
+# - OR
+# - spawn the user at a random location
+
+#######################################
+
 # using ruby in cli
 # ruby game.rb 10 10 5 5
-# uncomment the below lines
-# system("clear")
-# game = ::Game.new(width: ARGV[0], height: ARGV[1], start_x: ARGV[2], start_y: ARGV[3]).play
+# comment/uncomment the below lines
+system("clear")
+game = ::Game.new(width: ARGV[0], height: ARGV[1], start_x: ARGV[2], start_y: ARGV[3]).play
 
-#####################################
+#######################################
 
 # using IRB
 # irb -r ./game.rb

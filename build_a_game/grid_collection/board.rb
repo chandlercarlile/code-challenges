@@ -15,15 +15,14 @@ class Board
   end
 
   def print_board
-    # TODO:
-    # - when more objects, and if they have overlap, can check location via stored array
-
-    @grid.each_with_index do |row, index_y|
-      row.each_with_index do |column, index_x|
-        if @pc.location_x == index_x && @pc.location_y == index_y
-          print @pc.icon
-        else
+    @grid.each do |row|
+      row.each do |column|
+        if column.empty?
           print CELL
+        else
+          # eventually might need to handle overlapping items
+          # for now, only 1 item will ever be on a space
+          print column.first.icon
         end
         print " "
       end

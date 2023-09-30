@@ -51,11 +51,8 @@ class Board
     # - this command just calls move with the PC
 
     # ask pc for current location, and calculate new location
-    new_location_x = @pc.location_x + distance_x
-    new_location_y = @pc.location_y + distance_y
-
-    new_location_x %= width
-    new_location_y %= height
+    new_location_x = (@pc.location_x + distance_x) % width
+    new_location_y = (@pc.location_y + distance_y) % height
 
     # check if the player can perform that move on the board
     # - nothing to do here yet, player can move unrestricted

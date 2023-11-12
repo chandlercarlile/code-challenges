@@ -3,7 +3,8 @@ require "./coin"
 require "./box"
 
 class Board
-  CELL = "."
+  # CELL = "\u2588\u2588"
+  CELL = " . "
 
   attr_accessor :grid, :height, :width, :score
 
@@ -32,7 +33,6 @@ class Board
           # for now, only 1 item will ever be on a space
           print column.first.icon
         end
-        print " "
       end
 
       puts

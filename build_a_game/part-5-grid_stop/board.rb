@@ -68,74 +68,53 @@ class Board
   end
 
   def move_player_character(distance_x:, distance_y:)
-    # assume that the player can only move one space at a time
-    # this is a helper to get direction as human readable
-    direction =
-      distance_x == 1 ? "e" :
-      distance_x == -1 ? "w" :
-      distance_y == 1 ? "n" :
-      distance_y == -1 ? "s" :
-      "?"
+    move(moving_thing: @pc, distance_x: distance_x, distance_y: distance_y)
+  end
 
-    # TODO:
-    # - make a move command, which takes the object that you want to move
-    # - this command just calls move with the PC
+  def move(moving_thing:, distance_x:, distance_y:)
+    current_location_x = moving_thing.location_x
+    current_location_y = moving_thing.location_y
 
-    # ask pc for current location, and calculate new location
-    new_location_x = (@pc.location_x + distance_x) % width
-    new_location_y = (@pc.location_y + distance_y) % height
+    # calculate new location
+    new_location_x = (current_location_x + distance_x) % width
+    new_location_y = (current_location_y + distance_y) % height
 
-    # check if the player can perform that move on the board
-    # - nothing to do here yet, player can move unrestricted
-    # - easy way to do this, check everything else on that tile for "movable" or "collectible"
-    # - for boxes/things that can be pushed in a chain, check each thing for "movable", else revert
+    # interact with all the things at the new location
+    new_things = @grid[new_location_y][new_location_x]
 
-    # if yes, move the character
-    @grid[@pc.location_y][@pc.location_x] -= [@pc]
+    new_things.each do |static_thing|
+      interaction = moving_thing.interact(static_thing)
 
-    @pc.location_x = new_location_x
-    @pc.location_y = new_location_y
-
-    @grid[new_location_y][new_location_x] << @pc
-
-    items = @grid[new_location_y][new_location_x]
-
-    # collect anything that is "collectible" & move anything that is "movable"
-    # - this may be easier if we have the direction the player was moving (as an argument)
-    # - otherwise we will need to calculate it
-    items.each do |item|
-      next if item == @pc
-
-      if item == @coin
-        @score += 1
-        @grid[new_location_y][new_location_x] -= [@coin]
-        spawn(type: "Coin")
-      end
-
-      if item == @box
-        # calculate new box location
-        new_box_location_x = (new_location_x + distance_x) % width
-        new_box_location_y = (new_location_y + distance_y) % height
-
-        # check if box can be moved there
-        # - nothing to do here, box can move unrestricted
-        # - eventually this can be a more "global" method, where you pass the item to move
-        # - and the board tells you if it can move there or not
-
-        # check if box ran over the coin
-        # - if so, subtract score and spawn new coin
-        if @grid[new_box_location_y][new_box_location_x] == [@coin]
-          @score -= 1
-          @grid[new_box_location_y][new_box_location_x] -= [@coin]
-          spawn(type: "Coin")
-        end
-
-        # now that the space is for sure empty, we move the box
-        @grid[new_location_y][new_location_x] -= [@box]
-        @box.location_x = new_box_location_x
-        @box.location_y = new_box_location_y
-        @grid[new_box_location_y][new_box_location_x] << @box
+      case interaction
+      when :collects
+        # inventory, or each thing defines how to "collect" the static thing
+        moving_thing.collect(static_thing)
+      when :pushes
+        # recursion here
+        has_moved = move(moving_thing: static_thing, distance_x: distance_x, distance_y: distance_y)
+        raise "Error moving #{static_thing}" if !has_moved
+      when :squishes
+        # implement despawn method? To handle each thing in its own case.
+        # ex. if a coin is squished, should we spawn another one?
+        @grid[new_location_y][new_location_x] -= [static_thing]
+        static_thing.location_x = nil
+        static_thing.lcoation_y = nil
+      else
+        raise "No interaction Error"
       end
     end
+
+    #interactions were successful, complete the movement, return true
+    @grid[location_y][location_x] -= [moving_thing]
+    @grid[new_location_y][new_location_x] << moving_thing
+
+    moving_thing.location_x = new_location_x
+    moving_thing.location_y = new_location_y
+
+    return true
+
+    # interactions were not successful, no movement, return false
+  rescue
+    return false
   end
 end

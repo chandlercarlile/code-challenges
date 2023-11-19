@@ -7,18 +7,19 @@ class Game
 
   def initialize(height:, width:, start_x:, start_y:, debug: nil)
     @debug = debug
-    @board = ::Board.new(height: height, width: width, pc_start_x: start_x, pc_start_y: start_y)
+    @player_character = ::PlayerCharacter.new(location_x: start_x, location_y: start_y)
+    @board = ::Board.new(player_character: @player_character, height: height, width: width)
   end
 
   def play
     playing = true
 
     loop do
-      puts "Score: #{@board.score}"
+      puts "Score: #{@player_character.score}"
       @board.print_board
-      if @debug && @board.movement_error
+      if @debug && !@board.movement_errors.empty?
         puts "-----------------------------"
-        puts @board.movement_error
+        @board.movement_errors.each do |error| puts error end
       end
       puts "-----------------------------"
       puts "commands"
@@ -58,18 +59,20 @@ class Game
   end
 end
 
-# TODO:
-# - add script to ask user for heigh, width, start_x, start_y
-# - OR
-# - spawn the user at a random location
-
 #######################################
 
 # using ruby in cli
 # ruby game.rb 10 10 5 5
 # comment/uncomment the below lines
 system("clear")
-game = ::Game.new(width: ARGV[0], height: ARGV[1], start_x: ARGV[2], start_y: ARGV[3], debug: ARGV[4]).play
+game =
+  ::Game.new(
+    width: ARGV[0],
+    height: ARGV[1],
+    start_x: ARGV[2],
+    start_y: ARGV[3],
+    debug: ARGV[4]
+  ).play
 
 #######################################
 

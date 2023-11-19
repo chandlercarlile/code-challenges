@@ -3,7 +3,6 @@ require "./coin"
 require "./box"
 
 class Board
-  # CELL = "\u2588\u2588"
   CELL = " . "
 
   attr_accessor :grid, :height, :width, :score, :movement_errors
@@ -28,8 +27,6 @@ class Board
         if column.empty?
           print CELL
         else
-          # eventually might need to handle overlapping items
-          # for now, only 1 item will ever be on a space
           print column.first.icon
         end
       end
@@ -92,7 +89,7 @@ class Board
       when :pushes
         # recursion here
         has_moved = move(moving_thing: static_thing, distance_x: distance_x, distance_y: distance_y)
-        raise "Error moving #{static_thing}" if !has_moved # TODO: this can hide real errors
+        raise "Error moving #{static_thing}" if !has_moved
       when :squishes
         @grid[new_location_y][new_location_x] -= [static_thing]
         static_thing.location_x = nil

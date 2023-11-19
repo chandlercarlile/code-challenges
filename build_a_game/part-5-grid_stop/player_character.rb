@@ -15,5 +15,24 @@ class PlayerCharacter < Thing
     @location_y = location_y.to_i
 
     @icon = ICON
+
+    @inventory = []
+  end
+
+  def interact(thing)
+    case thing.class.name.to_sym
+    when :Coin
+      :collects
+    when :Box
+      :pushes
+    end
+  end
+
+  def collect(thing)
+    @inventory << thing
+  end
+
+  def score
+    @inventory.count { |thing| thing.class.name.to_sym == :Coin }
   end
 end

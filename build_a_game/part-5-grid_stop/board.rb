@@ -6,21 +6,20 @@ class Board
   # CELL = "\u2588\u2588"
   CELL = " . "
 
-  attr_accessor :grid, :height, :width, :score, :movement_error
+  attr_accessor :grid, :height, :width, :score, :movement_errors
 
-  def initialize(height:, width:, pc_start_x:, pc_start_y:)
+  def initialize(player_character:, height:, width:)
     @width = width.to_i
     @height = height.to_i
-    # should the board keep track of the score?
-    @score = 0
+    @movement_errors = []
 
     @grid = ::Array.new(@height){::Array.new(@width) {[]}}
 
-    spawn(type: "PlayerCharacter", location_x: pc_start_x, location_y: pc_start_y)
-    # TODO:
-    # - more than one coin can spawn?
-    spawn(type: "Coin")
-    spawn(type: "Box")
+    @player_character = player_character
+    @grid[@player_character.location_y][@player_character.location_x] << @player_character
+
+    spawn(type: "Coin", count: 3)
+    spawn(type: "Box", count: 2)
   end
 
   def print_board
@@ -39,36 +38,32 @@ class Board
     end
   end
 
-  def spawn(type:, location_x: nil, location_y: nil)
-    # TODO:
-    # - keep track of if the location was provided or random (need to error if provided and invalid)
-    location_x = location_x.nil? ? rand(width) : location_x
-    location_y = location_y.nil? ? rand(height) : location_y
+  def spawn(type:, location_x: nil, location_y: nil, count: 1)
+    count.times do
+      location_x = location_x.nil? ? rand(width) : location_x
+      location_y = location_y.nil? ? rand(height) : location_y
 
-    case type
-    when "PlayerCharacter"
-      # if player character is ever not the first to spawn, will need to validate the location
-      @pc = ::PlayerCharacter.new(location_x: location_x, location_y: location_y)
-      @grid[location_y.to_i][location_x.to_i] << @pc
-    when "Coin"
-      if @grid[location_y.to_i][location_x.to_i].empty?
-        @coin = ::Coin.new(location_x: location_x, location_y: location_y)
-        @grid[location_y.to_i][location_x.to_i] << @coin
-      else
-        spawn(type: "Coin")
-      end
-    when "Box"
-      if @grid[location_y.to_i][location_x.to_i].empty?
-        @box = ::Box.new(location_x: location_x, location_y: location_y)
-        @grid[location_y.to_i][location_x.to_i] << @box
-      else
-        spawn(type: "Box")
+      case type
+      when "Coin"
+        if @grid[location_y.to_i][location_x.to_i].empty?
+          @coin = ::Coin.new(location_x: location_x, location_y: location_y)
+          @grid[location_y.to_i][location_x.to_i] << @coin
+        else
+          spawn(type: "Coin")
+        end
+      when "Box"
+        if @grid[location_y.to_i][location_x.to_i].empty?
+          @box = ::Box.new(location_x: location_x, location_y: location_y)
+          @grid[location_y.to_i][location_x.to_i] << @box
+        else
+          spawn(type: "Box")
+        end
       end
     end
   end
 
   def move_player_character(distance_x:, distance_y:)
-    move(moving_thing: @pc, distance_x: distance_x, distance_y: distance_y)
+    move(moving_thing: @player_character, distance_x: distance_x, distance_y: distance_y)
   end
 
   def move(moving_thing:, distance_x:, distance_y:)
@@ -87,18 +82,21 @@ class Board
 
       case interaction
       when :collects
-        # inventory, or each thing defines how to "collect" the static thing
+        # collect the static thing and remove it from the board
         moving_thing.collect(static_thing)
+        static_thing.collected = true
+
+        @grid[new_location_y][new_location_x] -= [static_thing]
+        static_thing.location_x = nil
+        static_thing.location_y = nil
       when :pushes
         # recursion here
         has_moved = move(moving_thing: static_thing, distance_x: distance_x, distance_y: distance_y)
-        raise "Error moving #{static_thing}" if !has_moved
+        raise "Error moving #{static_thing}" if !has_moved # TODO: this can hide real errors
       when :squishes
-        # implement despawn method? To handle each thing in its own case.
-        # ex. if a coin is squished, should we spawn another one?
         @grid[new_location_y][new_location_x] -= [static_thing]
         static_thing.location_x = nil
-        static_thing.lcoation_y = nil
+        static_thing.location_y = nil
       else
         raise "No interaction Error"
       end
@@ -111,12 +109,12 @@ class Board
     moving_thing.location_x = new_location_x
     moving_thing.location_y = new_location_y
 
-    @movement_error = nil
+    @movement_errors = []
     return true
 
     # interactions were not successful, no movement, return false
   rescue => e
-    @movement_error = e
+    @movement_errors << e
     return false
   end
 end

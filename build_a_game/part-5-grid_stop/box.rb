@@ -18,4 +18,13 @@ class Box < Thing
 
     @icon = ICON
   end
+
+  def interact(thing)
+    case thing.class.name.to_sym
+    when :Coin
+      :squishes
+    when :Box
+      :pushes
+    end
+  end
 end

@@ -6,7 +6,7 @@ class Board
   # CELL = "\u2588\u2588"
   CELL = " . "
 
-  attr_accessor :grid, :height, :width, :score
+  attr_accessor :grid, :height, :width, :score, :movement_error
 
   def initialize(height:, width:, pc_start_x:, pc_start_y:)
     @width = width.to_i
@@ -105,16 +105,18 @@ class Board
     end
 
     #interactions were successful, complete the movement, return true
-    @grid[location_y][location_x] -= [moving_thing]
+    @grid[current_location_y][current_location_x] -= [moving_thing]
     @grid[new_location_y][new_location_x] << moving_thing
 
     moving_thing.location_x = new_location_x
     moving_thing.location_y = new_location_y
 
+    @movement_error = nil
     return true
 
     # interactions were not successful, no movement, return false
-  rescue
+  rescue => e
+    @movement_error = e
     return false
   end
 end

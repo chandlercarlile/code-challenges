@@ -5,7 +5,8 @@ class Game
     "w", "a", "s", "d",
   ].freeze
 
-  def initialize(height:, width:, start_x:, start_y:)
+  def initialize(height:, width:, start_x:, start_y:, debug: nil)
+    @debug = debug
     @board = ::Board.new(height: height, width: width, pc_start_x: start_x, pc_start_y: start_y)
   end
 
@@ -15,6 +16,10 @@ class Game
     loop do
       puts "Score: #{@board.score}"
       @board.print_board
+      if @debug && @board.movement_error
+        puts "-----------------------------"
+        puts @board.movement_error
+      end
       puts "-----------------------------"
       puts "commands"
       puts "exit: quit the game"
@@ -64,7 +69,7 @@ end
 # ruby game.rb 10 10 5 5
 # comment/uncomment the below lines
 system("clear")
-game = ::Game.new(width: ARGV[0], height: ARGV[1], start_x: ARGV[2], start_y: ARGV[3]).play
+game = ::Game.new(width: ARGV[0], height: ARGV[1], start_x: ARGV[2], start_y: ARGV[3], debug: ARGV[4]).play
 
 #######################################
 

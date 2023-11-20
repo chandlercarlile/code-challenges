@@ -1,7 +1,7 @@
 require "./thing.rb"
 
 class Wall < Thing
-  ICON = "\u2591" + "\u2591" + "\u2591"
+  ICON = "\u2592" + "\u2592" + "\u2592"
 
   attr_accessor :location_x, :location_y, :icon
 

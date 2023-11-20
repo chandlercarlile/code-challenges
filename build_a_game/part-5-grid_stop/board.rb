@@ -1,6 +1,7 @@
 require "./player_character"
 require "./coin"
 require "./box"
+require "./wall"
 
 class Board
   CELL = " . "
@@ -19,6 +20,7 @@ class Board
 
     spawn(type: "Coin", count: 3)
     spawn(type: "Box", count: 2)
+    spawn(type: "Wall", count: 8)
   end
 
   def print_board
@@ -43,17 +45,24 @@ class Board
       case type
       when "Coin"
         if @grid[location_y.to_i][location_x.to_i].empty?
-          @coin = ::Coin.new(location_x: location_x, location_y: location_y)
-          @grid[location_y.to_i][location_x.to_i] << @coin
+          coin = ::Coin.new(location_x: location_x, location_y: location_y)
+          @grid[location_y.to_i][location_x.to_i] << coin
         else
           spawn(type: "Coin")
         end
       when "Box"
         if @grid[location_y.to_i][location_x.to_i].empty?
-          @box = ::Box.new(location_x: location_x, location_y: location_y)
-          @grid[location_y.to_i][location_x.to_i] << @box
+          box = ::Box.new(location_x: location_x, location_y: location_y)
+          @grid[location_y.to_i][location_x.to_i] << box
         else
           spawn(type: "Box")
+        end
+      when "Wall"
+        if @grid[location_y.to_i][location_x.to_i].empty?
+          wall = ::Wall.new(location_x: location_x, location_y: location_y)
+          @grid[location_y.to_i][location_x.to_i] << wall
+        else
+          spawn(type: "Wall")
         end
       end
     end
